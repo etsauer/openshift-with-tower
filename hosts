@@ -26,12 +26,13 @@ meta-openshift_node_group_name_node-config-infra
 [app_hosts:children]
 meta-openshift_node_group_name_node-config-compute
 
-[meta-host-type_master:vars]
-keep_me=True
+[meta-host-type_master:children]
+keep-me
 [meta-host-type_etcd]
 [meta-host-type_cns]
 [meta-openshift_node_group_name_node-config-infra]
 [meta-openshift_node_group_name_node-config-compute]
+[keep-me]
 
 [seed-hosts:children]
 masters
