@@ -27,6 +27,26 @@ This repo has two important components.
 
 Once created, add the repo as a `Project` in Tower, and link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#sourced-from-a-project[add that project as a source to your inventory].
 
+=== Inventory source syncing "hack"
+
+The way that Tower syncs different inventory sources, they appear to not be aware of each other. This causes issues with this method, because the inventory in Git needs to reference groups that will be "empty", because the hosts in those groups are being synced from other inventory source. When ansible sees a group defined that it perceives to be "empty" (meaning it has no `children`), it will effectively ignore that group. In order to force the Git inventory metadata groups to sync properly, we give them all a placeholder child called `keep-me`. You'll see this in the sample hosts file as:
+
+```
+[meta-host-type_master:children]
+keep-me
+[meta-host-type_etcd]
+keep-me
+[meta-host-type_cns]
+keep-me
+[meta-openshift_node_group_name_node-config-infra]
+keep-me
+[meta-openshift_node_group_name_node-config-compute]
+keep-me
+[keep-me]
+```
+
+More research needs to be done to find a better solution.
+
 == 4. Sync the inventory and all of uts sources
 
 At this point you should be able to run an inventory sync, and see that all of your groups and hosts have been created as they should. From here you can run the OpenShift install playbook, or something like the link:https://github.com/redhat-cop/casl-ansible/blob/master/docs/BYO_INFRASTRUCTURE.adoc[CASL Ansible BYO provisioner].
