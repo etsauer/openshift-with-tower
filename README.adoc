@@ -1,5 +1,32 @@
-# Managing OpenShift Clusters using Ansible Tower
+= Managing OpenShift Clusters with Ansible Tower using a Multi-Source Inventory
 
-1. Set up an link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#id9[OpenStack Inventory].
-2. Create a repo like this one.
+This repo documents one (of many) possible solution to managing an OpenShift cluster in Ansible Tower. The solution combines inventory data from two sources:
 
+- A dynamic inventory source that pulls host data from a Cloud or Virtualization system. See link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#credential-sources[supported options]
+- A static file system inventory stored in Git, which provides the Ansible variables and group mappings required by the OpenShift installer.
+
+== 1. Create an inventory
+
+The first step is to link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#add-a-new-inventory[create a new inventory in Ansible Tower].
+
+== 2. Add a cloud provider source
+
+Add a new link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#credential-sources[credential source] that points to your infrastructure provider.
+
+The source you use must have the ability to pull metadata like tags on VMs and map them to Ansible groups. For example, in OpenStack, I will tag my master servers with `host-type=master`. Then in Tower, when I add my OpenStack inventory source, Tower will do an inventory sync in Tower, and create a group called `meta-host-type_master`. We will use this in the next step.
+
+NOTE: So far we know this to work with link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#amazon-web-services-ec2[Amazon EC2], link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#google-compute-engine[Google Cloud Platform], link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#vmware-vcenter[VMware vCenter], and link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#openstack[OpenStack].
+
+
+== 3. Create a repo like this one.
+
+This repo has two important components.
+
+1. A `hosts` file that maps the dynamic inventory groups, like `meta-host-type_master` as `children` of the static group names that the OpenShift installer expects.
+2. A `group_vars` directory containing variables for each host group. Most of the OpenShift variables can be found in `group_vars/OSEv3.yml`.
+
+Once created, add the repo as a `Project` in Tower, and link:https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#sourced-from-a-project[add that project as a source to your inventory].
+
+== 4. Sync the inventory and all of uts sources
+
+At this point you should be able to run an inventory sync, and see that all of your groups and hosts have been created as they should. From here you can run the OpenShift install playbook, or something like the link:https://github.com/redhat-cop/casl-ansible/blob/master/docs/BYO_INFRASTRUCTURE.adoc[CASL Ansible BYO provisioner].
