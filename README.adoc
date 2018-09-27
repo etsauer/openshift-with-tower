@@ -47,6 +47,6 @@ keep-me
 
 More research needs to be done to find a better solution.
 
-== 4. Sync the inventory and all of uts sources
+== 4. Sync the inventory and all of its sources
 
 At this point you should be able to run an inventory sync, and see that all of your groups and hosts have been created as they should. From here you can run the OpenShift install playbook, or something like the link:https://github.com/redhat-cop/casl-ansible/blob/master/docs/BYO_INFRASTRUCTURE.adoc[CASL Ansible BYO provisioner].
